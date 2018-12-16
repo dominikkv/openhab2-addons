@@ -80,6 +80,7 @@ public class EnOceanBaseActuatorHandler extends EnOceanBaseSensorHandler {
     @Override
     void initializeConfig() {
         config = getConfigAs(EnOceanActuatorConfig.class);
+        setReceivingEEP(config);
     }
 
     protected EnOceanActuatorConfig getConfiguration() {

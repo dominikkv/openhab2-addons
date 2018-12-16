@@ -10,6 +10,7 @@ package org.openhab.binding.enocean.internal.handler;
 
 import static org.openhab.binding.enocean.internal.EnOceanBindingConstants.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -54,9 +55,21 @@ public class EnOceanBaseSensorHandler extends EnOceanBaseThingHandler implements
         super(thing);
     }
 
+    protected void setReceivingEEP(EnOceanBaseConfig cfg) {
+        Configuration c = getConfig();
+        Object r = c.get(PARAMETER_RECEIVINGEEPID);
+        if (r != null && r instanceof String) {
+            cfg.setReceivingEEPId(r.toString());
+        }
+        if (r != null && r instanceof ArrayList<?>) {
+            cfg.setReceivingEEPId((ArrayList<String>) r);
+        }
+    }
+
     @Override
     void initializeConfig() {
         config = getConfigAs(EnOceanBaseConfig.class);
+        setReceivingEEP(config);
     }
 
     @Override
@@ -64,11 +77,11 @@ public class EnOceanBaseSensorHandler extends EnOceanBaseThingHandler implements
         receivingEEPTypes = null;
 
         try {
-            if (config.receivingEEPId != null && !config.receivingEEPId.isEmpty()) {
+            if (config.getReceivingEEPId() != null && !config.getReceivingEEPId().isEmpty()) {
                 boolean first = true;
                 receivingEEPTypes = new Hashtable<>();
 
-                for (String receivingEEP : config.receivingEEPId) {
+                for (String receivingEEP : config.getReceivingEEPId()) {
                     if (receivingEEP == null) {
                         continue;
                     }
