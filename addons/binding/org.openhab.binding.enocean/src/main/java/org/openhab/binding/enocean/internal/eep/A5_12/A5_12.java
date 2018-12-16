@@ -10,6 +10,8 @@ package org.openhab.binding.enocean.internal.eep.A5_12;
 
 import static org.openhab.binding.enocean.internal.EnOceanBindingConstants.*;
 
+import javax.measure.quantity.Energy;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
@@ -114,8 +116,33 @@ public abstract class A5_12 extends _4BSMessage {
             case CHANNEL_CURRENTNUMBER:
                 return getCurrentValue();
             case CHANNEL_TOTALUSAGE:
-            case CHANNEL_TOTALCUBICMETRE:
+                State cumulativeValue = getCumulativeValue();
+
+                if ((currentState instanceof QuantityType<?>) && (cumulativeValue instanceof QuantityType<?>)) {
+                    @SuppressWarnings("unchecked")
+                    QuantityType<Energy> newValue = ((QuantityType<Energy>) cumulativeValue)
+                            .toUnit(SmartHomeUnits.KILOWATT_HOUR);
+                    @SuppressWarnings("unchecked")
+                    QuantityType<Energy> lastValue = ((QuantityType<Energy>) currentState)
+                            .toUnit(SmartHomeUnits.KILOWATT_HOUR);
+
+                    if ((newValue != null) && (lastValue != null)) {
+                        if (newValue.compareTo(lastValue) < 0) {
+                            if ((lastValue.subtract(newValue).doubleValue() < 1.0)) {
+                                return UnDefType.UNDEF;
+                            }
+                        } else {
+                            if (newValue.subtract(lastValue).doubleValue() > 10.0) {
+                                return UnDefType.UNDEF;
+                            }
+                        }
+                    }
+                }
+
+                return cumulativeValue;
             case CHANNEL_COUNTER:
+                return getCumulativeValue();
+            case CHANNEL_TOTALCUBICMETRE:
                 return getCumulativeValue();
         }
 
