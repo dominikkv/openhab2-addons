@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.enocean.internal.eep.A5_38;
 
+import java.util.Hashtable;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -43,7 +45,7 @@ public class A5_38_08_Dimming extends _4BSMessage {
 
     @Override
     protected void convertFromCommandImpl(String channelId, String channelTypeId, Command outputCommand,
-            State currentState, Configuration config) {
+            Hashtable<String, State> currentState, Configuration config) {
 
         EnOceanChannelDimmerConfig c = config.as(EnOceanChannelDimmerConfig.class);
         byte rampingTime = (c.rampingTime == null) ? Zero : c.rampingTime.byteValue();
@@ -65,10 +67,10 @@ public class A5_38_08_Dimming extends _4BSMessage {
     @Override
     public State convertToStateImpl(String channelId, String channelTypeId, State currentState, Configuration config) {
 
-            if (getDB_0() == (TeachInBit | SwitchOff)) {
-                return new PercentType(0);
-            } else {
-                return new PercentType(getDB_2Value());
-            }
+        if (getDB_0() == (TeachInBit | SwitchOff)) {
+            return new PercentType(0);
+        } else {
+            return new PercentType(getDB_2Value());
         }
     }
+}
