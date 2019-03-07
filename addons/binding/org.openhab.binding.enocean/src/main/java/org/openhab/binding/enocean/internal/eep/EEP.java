@@ -184,6 +184,8 @@ public abstract class EEP {
             message.setOptionalPayload(optionalData);
 
             return message;
+        } else {
+            logger.warn("ERP1Message for EEP {} is not valid!", this.getClass().getName());
         }
 
         return null;
