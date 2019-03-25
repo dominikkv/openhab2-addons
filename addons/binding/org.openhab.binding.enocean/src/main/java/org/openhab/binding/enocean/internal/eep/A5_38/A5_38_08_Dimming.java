@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.enocean.internal.eep.A5_38;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -45,7 +45,7 @@ public class A5_38_08_Dimming extends _4BSMessage {
 
     @Override
     protected void convertFromCommandImpl(String channelId, String channelTypeId, Command outputCommand,
-            Hashtable<String, State> currentState, Configuration config) {
+            Map<String, State> currentState, Configuration config) {
 
         EnOceanChannelDimmerConfig c = config.as(EnOceanChannelDimmerConfig.class);
         byte rampingTime = (c.rampingTime == null) ? Zero : c.rampingTime.byteValue();
