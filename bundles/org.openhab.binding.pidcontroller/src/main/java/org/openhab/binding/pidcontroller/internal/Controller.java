@@ -22,9 +22,6 @@ import static org.openhab.binding.pidcontroller.internal.PIDControllerBindingCon
 
 import java.math.BigDecimal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The {@link Controller} provides the necessary methods for retrieving part(s) of the PID calculations
  * and it provides the method for the overall PID calculations. It also resets the PID controller
@@ -33,80 +30,72 @@ import org.slf4j.LoggerFactory;
  */
 
 public class Controller {
-    private Logger logger = LoggerFactory.getLogger(Controller.class);
+    private BigDecimal derivativeResult = BigDecimal.ZERO;
+    private BigDecimal proportionalResult = BigDecimal.ZERO;
+    private BigDecimal integralResult = BigDecimal.ZERO;
+    private BigDecimal previousError = BigDecimal.ZERO;
+    private BigDecimal error = BigDecimal.ZERO;
+    private BigDecimal output = BigDecimal.ZERO;
+    private BigDecimal kp;
+    private BigDecimal ki;
+    private BigDecimal kd;
 
-    public int ControllerOutput;
-    private BigDecimal Derivativeresult = BigDecimal.valueOf(0);
-    public BigDecimal Proportionalresult = BigDecimal.valueOf(0);
-    public BigDecimal Integralresult = BigDecimal.valueOf(0);
-    public BigDecimal previousError = BigDecimal.valueOf(0);
-    public BigDecimal Error = BigDecimal.valueOf(0);
-    public BigDecimal maxIntegral = BigDecimal.valueOf(0);
-    public BigDecimal Output = BigDecimal.valueOf(0);
-    private BigDecimal Ku;
-    private BigDecimal Kp;
-    private BigDecimal Ki;
-    private BigDecimal Kd;
+    public BigDecimal pidCalculation(BigDecimal pidInput, BigDecimal pidSetpoint, BigDecimal loopTime,
+            BigDecimal pidOutputLowerLimit, BigDecimal pidOutputUpperLimit, BigDecimal kpAdjuster,
+            BigDecimal kiAdjuster, BigDecimal kdAdjuster) {
 
-    public BigDecimal PIDCalculation(BigDecimal PIDinput, BigDecimal PIDsetpoint, int LoopTime,
-            BigDecimal PIDOutputLowerLimit, BigDecimal PIDOutputUpperLimit, BigDecimal Kpadjuster,
-            BigDecimal Kiadjuster, BigDecimal Kdadjuster) {
+        BigDecimal ku = pidOutputUpperLimit.subtract(pidOutputLowerLimit).divide(BigDecimal.valueOf(PID_RANGE_DEFAULT));
 
-        Ku = PIDOutputUpperLimit.subtract(PIDOutputLowerLimit).divide(BigDecimal.valueOf(PID_RANGE_DEFAULT));
-        Kp = Kpadjuster.multiply(Ku);
-        Ki = Kiadjuster.multiply(Ku.multiply(BigDecimal.valueOf(2)).divide(BigDecimal.valueOf(LoopTime)));
-        Kd = Kdadjuster.multiply(Ku.multiply(BigDecimal.valueOf(LoopTime)));
-        BigDecimal maxIntegral = PIDOutputUpperLimit.abs().subtract((Kp.multiply(Proportionalresult).abs())).divide(Ki);
+        kp = kpAdjuster.multiply(ku);
+        ki = kiAdjuster.multiply(ku.multiply(BigDecimal.valueOf(2)).divide(loopTime));
+        kd = kdAdjuster.multiply(ku.multiply(loopTime));
 
-        Error = PIDsetpoint.subtract(PIDinput);
-        logger.debug("The calculated error is: {}", Error.floatValue());
-        Proportionalresult = Error;
-        logger.debug("Proportional part: {}", Kp.multiply(Proportionalresult));
-        Integralresult = Integralresult.add(Error.multiply(BigDecimal.valueOf(LoopTime)));
+        BigDecimal maxIntegral = pidOutputUpperLimit.abs().subtract((kp.multiply(proportionalResult).abs())).divide(ki);
 
-        if (Integralresult.abs().compareTo(maxIntegral.abs()) == 1) {
+        error = pidSetpoint.subtract(pidInput);
+        proportionalResult = error;
+        integralResult = integralResult.add(error.multiply(loopTime));
 
-            if (Output.compareTo(BigDecimal.valueOf(0)) == -1) {
-                Integralresult = maxIntegral.negate();
+        if (integralResult.abs().compareTo(maxIntegral.abs()) > 0) {
+
+            if (output.compareTo(BigDecimal.ZERO) < 0) {
+                integralResult = maxIntegral.negate();
             } else {
-                Integralresult = maxIntegral;
+                integralResult = maxIntegral;
             }
         }
-        if ((Integralresult.compareTo(BigDecimal.valueOf(0)) == -1 && Error.compareTo(BigDecimal.valueOf(0)) == 1)
-                || (Integralresult.compareTo(BigDecimal.valueOf(0)) == 1
-                        && Error.compareTo(BigDecimal.valueOf(0)) == -1)) {
-            Integralresult = BigDecimal.valueOf(0);
+        if ((integralResult.compareTo(BigDecimal.ZERO) < 0 && error.compareTo(BigDecimal.ZERO) > 0)
+                || (integralResult.compareTo(BigDecimal.ZERO) > 0 && error.compareTo(BigDecimal.ZERO) < 0)) {
+            integralResult = BigDecimal.ZERO;
         }
-        logger.debug("Integral part: {}", Ki.multiply(Integralresult));
-        Derivativeresult = Error.subtract(previousError).divide(BigDecimal.valueOf(LoopTime));
-        logger.debug("Derivative part: {}", Kd.multiply(Derivativeresult));
-        Output = Kp.multiply(Proportionalresult).add(Ki.multiply(Integralresult)).add(Kd.multiply(Derivativeresult));
-        previousError = Error;
-        return Output;
+        derivativeResult = error.subtract(previousError).divide(loopTime);
+        output = kp.multiply(proportionalResult).add(ki.multiply(integralResult)).add(kd.multiply(derivativeResult));
+        previousError = error;
+        return output;
 
     }
 
     public BigDecimal getProportionalpart() {
-        BigDecimal proportional = Kp.multiply(Proportionalresult);
+        BigDecimal proportional = kp.multiply(proportionalResult);
         return proportional;
     }
 
     public BigDecimal getIntegralpart() {
-        BigDecimal integral = Ki.multiply(Integralresult);
+        BigDecimal integral = ki.multiply(integralResult);
         return integral;
     }
 
     public BigDecimal getDerivativepart() {
-        BigDecimal derivative = Kd.multiply(Derivativeresult);
+        BigDecimal derivative = kd.multiply(derivativeResult);
         return derivative;
     }
 
     public void ResetPID() {
-        Derivativeresult = BigDecimal.valueOf(0);
-        Proportionalresult = BigDecimal.valueOf(0);
-        Integralresult = BigDecimal.valueOf(0);
-        previousError = BigDecimal.valueOf(0);
-        Error = BigDecimal.valueOf(0);
+        derivativeResult = BigDecimal.ZERO;
+        proportionalResult = BigDecimal.ZERO;
+        integralResult = BigDecimal.ZERO;
+        previousError = BigDecimal.ZERO;
+        error = BigDecimal.ZERO;
     }
 
 }

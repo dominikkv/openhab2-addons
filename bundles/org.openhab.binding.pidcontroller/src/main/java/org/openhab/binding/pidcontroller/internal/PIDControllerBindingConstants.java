@@ -30,7 +30,7 @@ public class PIDControllerBindingConstants {
     // List of all Channel ids
     public final static String INPUT = "input";
     public final static String SETPOINT = "setpoint";
-    public final static String LOOP_TIME = "LoopTime";
+    public final static String LOOP_TIME = "loopTime";
     public final static String OUTPUT = "output";
     public final static String KP_ADJUSTER = "kpadjuster";
     public final static String KI_ADJUSTER = "kiadjuster";

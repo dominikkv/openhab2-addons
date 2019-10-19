@@ -11,7 +11,7 @@
 
         <channels>
             <channel id="input" typeId="input"></channel><channel typeId="setpoint" id="setpoint"></channel>
-        	<channel typeId="LoopTime" id="LoopTime"></channel>
+        	<channel typeId="loopTime" id="loopTime"></channel>
         	<channel typeId="output" id="output"></channel>
         	<channel typeId="kpadjuster" id="kpadjuster"></channel>
         	<channel typeId="kiadjuster" id="kiadjuster"></channel>
@@ -32,7 +32,7 @@
     	<label>Controller setpoint value</label>
     	<description>Setpoint value for the controller</description>
     </channel-type>
-    <channel-type id="LoopTime">
+    <channel-type id="loopTime">
     	<item-type>Number</item-type>
     	<label>Loop Time for the controller</label>
     	<description>Duration of the loop (milliseconds)</description>
