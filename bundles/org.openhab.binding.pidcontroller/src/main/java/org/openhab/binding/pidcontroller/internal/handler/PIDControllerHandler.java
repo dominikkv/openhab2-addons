@@ -258,8 +258,8 @@ public class PIDControllerHandler extends BaseThingHandler {
         }
         logger.debug("Upper Limit :{}", PIDOutputUpperLimit);
 
-        PIDOutput = controller.pidCalculation(PIDinput, PIDsetpoint, PIDLoopTime, PIDOutputLowerLimit,
-                PIDOutputUpperLimit, Kpadjuster, Kiadjuster, Kdadjuster);
+        PIDOutput = controller.pidCalculation(PIDinput, PIDsetpoint, BigDecimal.valueOf(PIDLoopTime),
+                PIDOutputLowerLimit, PIDOutputUpperLimit, Kpadjuster, Kiadjuster, Kdadjuster);
 
         StringBuilder tempstring2 = new StringBuilder();
         tempstring2.append(PIDOutput);
