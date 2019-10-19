@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.pidcontroller.internal.handler;
+package org.openhab.binding.pidcontroller.internal;
 
 import static org.openhab.binding.pidcontroller.internal.PIDControllerBindingConstants.*;
 
@@ -25,7 +25,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.openhab.binding.pidcontroller.internal.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

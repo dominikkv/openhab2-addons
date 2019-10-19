@@ -69,8 +69,10 @@ public class Controller {
             integralResult = BigDecimal.ZERO;
         }
         derivativeResult = error.subtract(previousError).divide(loopTime);
-        output = kp.multiply(proportionalResult).add(ki.multiply(integralResult)).add(kd.multiply(derivativeResult));
         previousError = error;
+
+        output = kp.multiply(proportionalResult).add(ki.multiply(integralResult)).add(kd.multiply(derivativeResult));
+
         return output;
 
     }
